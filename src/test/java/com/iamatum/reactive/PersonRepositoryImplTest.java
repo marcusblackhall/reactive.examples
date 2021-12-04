@@ -67,4 +67,44 @@ class PersonRepositoryImplTest {
 
     }
 
+    @Test
+    void testFindPersonById() {
+
+        Flux<Person> fluxPerson = personRepository.findAll();
+        Mono<Person> personId2 = fluxPerson.filter(p -> p.getId() == 2).next();
+        personId2.subscribe(person -> System.out.println(person));
+
+
+    }
+
+    @Test
+    void testFindPersonByIdNotFound() {
+
+        Flux<Person> fluxPerson = personRepository.findAll();
+        Mono<Person> personId2 = fluxPerson.filter(p -> p.getId() == 7).next();
+        personId2.subscribe(person -> System.out.println(person),
+                (err) -> System.out.println(err.getCause())
+
+        );
+
+
+    }
+
+    @Test
+    void testFindPersonByIdNotFoundWithException() {
+
+        Flux<Person> fluxPerson = personRepository.findAll();
+        Mono<Person> personId2 = fluxPerson.filter(p -> p.getId() == 7).single();
+        personId2.subscribe(person -> System.out.println(person),
+                err -> System.out.println("id not available")
+
+        );
+        Flux<Person> fluxPerson2 = personRepository.findAll();
+        Mono<Person> personId3= fluxPerson.filter(p -> p.getId() == 7).single();
+        personId3.doOnError(err -> System.out.println("id not available"))
+                .onErrorReturn(Person.builder().build())
+                .subscribe(person -> System.out.println(person));
+
+
+    }
 }
